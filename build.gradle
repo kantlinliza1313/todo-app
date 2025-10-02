@@ -63,7 +63,7 @@ tasks.build {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            groupId = 'com.kawarag1'
+            groupId = 'com.kantlinliza1313'
             artifactId = 'todo-app'
             version = '0.3.0'
 
@@ -78,7 +78,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = "https://maven.pkg.github.com/kawarag1/todo-app"
+            url = "https://maven.pkg.github.com/kantlinliza1313/todo-app"
             credentials {
                 username = System.getenv("GITHUB_ACTOR")
                 password = System.getenv("GITHUB_TOKEN")
