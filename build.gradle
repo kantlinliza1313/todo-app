@@ -10,6 +10,8 @@ version = findProperty('version') ?: '0.1.0'
 java {
     sourceCompatibility = JavaVersion.VERSION_23
     targetCompatibility = JavaVersion.VERSION_23
+    withSourcesJar() // Добавляем задачу создания sources JAR
+    withJavadocJar() // Добавляем задачу создания javadoc JAR
 }
 
 repositories {
@@ -29,10 +31,9 @@ tasks.named('test', Test) {
 shadowJar {
     archiveBaseName = 'todo-app'
     archiveClassifier = ''
-    archiveVersion = '' // Убираем версию из имени файла
+    archiveVersion = ''
     mergeServiceFiles()
 
-    // Явно указываем main class для shadowJar
     manifest {
         attributes 'Main-Class': 'org.example.TodoApp'
     }
@@ -55,15 +56,22 @@ publishing {
             artifactId = 'todo-app'
             version = project.version
 
-            // Важно: добавляем компонент java для метаданных
-            from components.java
-
             // Основной артефакт - shadowJar
             artifact(shadowJar) {
                 classifier = null
             }
 
-            // Добавляем информацию о лицензии и разработчике (опционально)
+            // Добавляем sources JAR
+            artifact sourcesJar {
+                classifier = 'sources'
+            }
+
+            // Добавляем javadoc JAR
+            artifact javadocJar {
+                classifier = 'javadoc'
+            }
+
+            // Добавляем информацию о лицензии и разработчике
             pom {
                 name = 'Todo Application'
                 description = 'A simple todo application built with Java'
