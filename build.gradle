@@ -29,7 +29,7 @@ tasks.named('test', Test) {
 shadowJar {
     archiveBaseName = 'todo-app'
     archiveClassifier = ''
-    archiveVersion = project.version.toString()
+    archiveVersion = '' // Убираем версию из имени файла
     mergeServiceFiles()
 
     // Явно указываем main class для shadowJar
