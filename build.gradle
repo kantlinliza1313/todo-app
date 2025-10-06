@@ -125,3 +125,9 @@ tasks.named('build') {
     dependsOn(tasks.named('jar'))
     dependsOn(tasks.named('shadowJar'))
 }
+// Task для получения версии в CI
+tasks.register('printVersion') {
+    doLast {
+        println project.version
+    }
+}
