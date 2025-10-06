@@ -10,8 +10,8 @@ version = findProperty('version') ?: '0.1.0'
 java {
     sourceCompatibility = JavaVersion.VERSION_23
     targetCompatibility = JavaVersion.VERSION_23
-    withSourcesJar() // Добавляем задачу создания sources JAR
-    withJavadocJar() // Добавляем задачу создания javadoc JAR
+    withSourcesJar()
+    withJavadocJar()
 }
 
 repositories {
@@ -39,6 +39,16 @@ shadowJar {
     }
 }
 
+// Настраиваем sourcesJar
+tasks.named('sourcesJar') {
+    archiveClassifier = 'sources'
+}
+
+// Настраиваем javadocJar
+tasks.named('javadocJar') {
+    archiveClassifier = 'javadoc'
+}
+
 // Отключаем обычный jar
 tasks.named('jar') {
     enabled = false
@@ -58,18 +68,14 @@ publishing {
 
             // Основной артефакт - shadowJar
             artifact(shadowJar) {
-                classifier = null
+                // Не указываем classifier для основного артефакта
             }
 
             // Добавляем sources JAR
-            artifact sourcesJar {
-                classifier = 'sources'
-            }
+            artifact(tasks.sourcesJar)
 
             // Добавляем javadoc JAR
-            artifact javadocJar {
-                classifier = 'javadoc'
-            }
+            artifact(tasks.javadocJar)
 
             // Добавляем информацию о лицензии и разработчике
             pom {
