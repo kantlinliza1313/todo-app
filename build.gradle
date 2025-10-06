@@ -55,8 +55,32 @@ publishing {
             artifactId = 'todo-app'
             version = project.version
 
+            // Важно: добавляем компонент java для метаданных
+            from components.java
+
+            // Основной артефакт - shadowJar
             artifact(shadowJar) {
                 classifier = null
+            }
+
+            // Добавляем информацию о лицензии и разработчике (опционально)
+            pom {
+                name = 'Todo Application'
+                description = 'A simple todo application built with Java'
+                url = 'https://github.com/kantlinliza1313/todo-app'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'kantlinliza1313'
+                        name = 'Your Name'
+                        email = 'your-email@example.com'
+                    }
+                }
             }
         }
     }
