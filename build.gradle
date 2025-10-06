@@ -5,13 +5,11 @@ plugins {
 }
 
 group = 'org.example'
-version = findProperty('version') ?: '0.1.0'
+version = findProperty('version') ?: '0.2.0'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_23
     targetCompatibility = JavaVersion.VERSION_23
-    withSourcesJar()
-    withJavadocJar()
 }
 
 repositories {
@@ -28,10 +26,11 @@ tasks.named('test', Test) {
     useJUnitPlatform()
 }
 
+// ShadowJar для локального использования (fat JAR)
 shadowJar {
     archiveBaseName = 'todo-app'
-    archiveClassifier = ''
-    archiveVersion = ''
+    archiveClassifier = 'all'  // Добавляем классификатор
+    archiveVersion = project.version.toString()
     mergeServiceFiles()
 
     manifest {
@@ -39,73 +38,90 @@ shadowJar {
     }
 }
 
-// Настраиваем sourcesJar
-tasks.named('sourcesJar') {
-    archiveClassifier = 'sources'
+// Обычный JAR для публикации в релизах
+jar {
+    enabled = true
+    archiveBaseName = 'todo-app'
+    archiveVersion = project.version.toString()
+
+    manifest {
+        attributes 'Main-Class': 'org.example.TodoApp'
+    }
 }
 
-// Настраиваем javadocJar
-tasks.named('javadocJar') {
+// JAR с исходниками
+java {
+    withSourcesJar()
+}
+
+// JAR с документацией
+tasks.register('javadocJar', Jar) {
     archiveClassifier = 'javadoc'
+    from javadoc
+    dependsOn javadoc
 }
 
-// Отключаем обычный jar
-tasks.named('jar') {
-    enabled = false
-}
-
-// Убеждаемся, что build зависит от shadowJar
-tasks.named('build') {
-    dependsOn(tasks.named('shadowJar'))
+tasks.named('javadoc') {
+    options.addStringOption('Xdoclint:none', '-quiet')
 }
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            groupId = 'org.example'
+            // Основной артефакт (JAR)
+            artifact jar
+
+            // Дополнительные артефакты
+            artifact sourcesJar
+            artifact javadocJar
+
             artifactId = 'todo-app'
+            groupId = project.group
             version = project.version
 
-            // Основной артефакт - shadowJar
-            artifact(shadowJar) {
-                // Не указываем classifier для основного артефакта
-            }
-
-            // Добавляем sources JAR
-            artifact(tasks.sourcesJar)
-
-            // Добавляем javadoc JAR
-            artifact(tasks.javadocJar)
-
-            // Добавляем информацию о лицензии и разработчике
             pom {
-                name = 'Todo Application'
-                description = 'A simple todo application built with Java'
+                name = 'Todo App'
+                description = 'A simple Todo application'
                 url = 'https://github.com/kantlinliza1313/todo-app'
+
                 licenses {
                     license {
                         name = 'MIT License'
                         url = 'https://opensource.org/licenses/MIT'
                     }
                 }
+
                 developers {
                     developer {
                         id = 'kantlinliza1313'
                         name = 'Your Name'
-                        email = 'your-email@example.com'
+                        email = 'your.email@example.com'
                     }
+                }
+
+                scm {
+                    connection = 'scm:git:git://github.com/kantlinliza1313/todo-app.git'
+                    developerConnection = 'scm:git:ssh://github.com:kantlinliza1313/todo-app.git'
+                    url = 'https://github.com/kantlinliza1313/todo-app'
                 }
             }
         }
     }
+
     repositories {
         maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/kantlinliza1313/todo-app")
+            name = 'GitHubPackages'
+            url = uri('https://maven.pkg.github.com/kantlinliza1313/todo-app')
             credentials {
-                username = project.findProperty("grp.user") ?: System.getenv("GITHUB_ACTOR")
-                password = project.findProperty("grp.key") ?: System.getenv("GITHUB_TOKEN")
+                username = project.findProperty('gpr.user') ?: System.getenv('GITHUB_ACTOR')
+                password = project.findProperty('gpr.key') ?: System.getenv('GITHUB_TOKEN')
             }
         }
     }
+}
+
+// Убедимся, что build создает оба JAR
+tasks.named('build') {
+    dependsOn(tasks.named('jar'))
+    dependsOn(tasks.named('shadowJar'))
 }
